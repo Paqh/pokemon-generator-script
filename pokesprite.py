@@ -4,6 +4,8 @@ https://msikma.github.io/pokesprite/
 """
 from __future__ import annotations
 
+from typing import List
+
 import requests
 
 from interfaces import Pokemon, PokemonDB
@@ -25,4 +27,13 @@ class PokespriteDB(PokemonDB):
         next_pokemon_data = next(self.pokemon_data)[1]
         name = next_pokemon_data["name"]["eng"]
         ascii_name = next_pokemon_data["slug"]["eng"]
-        return Pokemon(name, ascii_name)
+        form_data = next_pokemon_data["gen-8"]["forms"]
+        forms: List[str] = []
+        for form in form_data:
+            # Replacing ambiguos name from API with a more human readable name
+            if form == "$":
+                forms.append("regular")
+            else:
+                forms.append(form)
+
+        return Pokemon(name, ascii_name, forms)

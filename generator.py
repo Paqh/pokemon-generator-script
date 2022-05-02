@@ -7,4 +7,4 @@ class SpritesGenerator:
 
     def generate(self) -> None:
         for pokemon in self.db:
-            print(pokemon.name)
+            print(f"{pokemon.name} forms:{pokemon.forms}")

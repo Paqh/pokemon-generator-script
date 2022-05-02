@@ -6,10 +6,13 @@ from __future__ import annotations
 from abc import ABC
 from dataclasses import dataclass
 
+from typing import List
+
 
 class PokemonDB(ABC):
     """An interface for defining any database from which pokemon information
     can be fetched. Must be able to be iterated over to get Pokemon objects"""
+
     def __iter__(self) -> PokemonDB:
         """Returns a database iterator"""
 
@@ -21,3 +24,4 @@ class PokemonDB(ABC):
 class Pokemon:
     name: str
     ascii_name: str
+    forms: List[str]
