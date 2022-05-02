@@ -5,8 +5,9 @@ from __future__ import annotations
 
 from abc import ABC
 from dataclasses import dataclass
-
 from typing import List
+
+from PIL.Image import Image
 
 
 class PokemonDB(ABC):
@@ -24,4 +25,11 @@ class PokemonDB(ABC):
 class Pokemon:
     name: str
     ascii_name: str
-    forms: List[str]
+    sprites: List[Sprite]
+
+
+@dataclass
+class Sprite:
+    image: Image
+    shiny: bool
+    form: str = "regular"
