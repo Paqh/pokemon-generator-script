@@ -5,6 +5,7 @@ from unicode_converters import LargeSizeConverter, SmallSizeConverter
 
 def main() -> None:
     db = PokespriteDB()
+    db.include_forms = False
     # converter_small = SmallSizeConverter()
     converter_large = LargeSizeConverter()
     # generator = SpritesGenerator(db, converter_small)

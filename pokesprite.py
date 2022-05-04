@@ -19,6 +19,8 @@ class PokespriteDB(PokemonDB):
         self.base_url = "https://raw.githubusercontent.com/msikma/pokesprite/master/"
         self.data_endpoint = "data/pokemon.json"
         self.data = requests.get(self.base_url + self.data_endpoint).json()
+        # set to false if you only need regular forms
+        self.include_forms = True
 
     def __iter__(self) -> PokespriteDB:
         self.pokemon_data = iter(self.data.items())
@@ -42,6 +44,8 @@ class PokespriteDB(PokemonDB):
 
         sprites: List[Sprite] = []
         for form_name in forms:
+            if not self.include_forms and form_name != "regular":
+                continue
             sprite_name = ascii_name
             if form_name != "regular":
                 sprite_name += f"-{form_name}"
