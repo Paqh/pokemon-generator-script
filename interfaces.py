@@ -31,7 +31,7 @@ class Pokemon:
 @dataclass
 class Sprite:
     image: Image
-    shiny: bool
+    is_shiny: bool
     form: str = "regular"
 
 

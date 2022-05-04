@@ -7,3 +7,7 @@
 # ignore compiled files
 *.pyc
 __pycache__
+
+# ignore output unicode art files
+small
+large
