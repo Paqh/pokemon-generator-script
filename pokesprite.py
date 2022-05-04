@@ -30,24 +30,27 @@ class PokespriteDB(PokemonDB):
         ascii_name = next_pokemon_data["slug"]["eng"]
         form_data = next_pokemon_data["gen-8"]["forms"]
         forms: List[str] = []
-        for form in form_data:
+        for form_name, form_info in form_data.items():
+            # Avoid duplicate items with aliases. One main name will do
+            if "is_alias_of" in form_info:
+                continue
             # Replacing ambiguos name from API with a more human readable name
-            if form == "$":
+            if form_name == "$":
                 forms.append("regular")
             else:
-                forms.append(form)
+                forms.append(form_name)
 
         sprites: List[Sprite] = []
-        for form in forms:
+        for form_name in forms:
             sprite_name = ascii_name
-            if form != "regular":
-                sprite_name += f"-{form}"
+            if form_name != "regular":
+                sprite_name += f"-{form_name}"
 
             normal = Sprite(
-                PokespriteSprite(sprite_name, shiny=False).get_image(), False, form
+                PokespriteSprite(sprite_name, shiny=False).get_image(), False, form_name
             )
             shiny = Sprite(
-                PokespriteSprite(sprite_name, shiny=True).get_image(), True, form
+                PokespriteSprite(sprite_name, shiny=True).get_image(), True, form_name
             )
             sprites.append(normal)
             sprites.append(shiny)
@@ -95,6 +98,6 @@ class PokespriteSprite:
 
     def get_image(self) -> Image.Image:
         self.fetch_sprite()
-        self.crop_to_content()
         self.convert_to_rgba()
+        self.crop_to_content()
         return self.image

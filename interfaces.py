@@ -33,3 +33,10 @@ class Sprite:
     image: Image
     shiny: bool
     form: str = "regular"
+
+
+class ImageToUnicodeConverter(ABC):
+    """An interface for some conversion of an RGBA image to a unicode sprite"""
+
+    def convert_image_to_unicode(self, image: Image) -> str:
+        """Returns the unicode converted of the image"""
