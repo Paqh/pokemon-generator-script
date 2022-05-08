@@ -17,10 +17,18 @@ class SmallSizeConverter(ImageToUnicodeConverter):
         unicode_sprite = ""
 
         image_array = np.array(image)
+        height, width, channels = image_array.shape
 
-        height, width, _ = image_array.shape
+        # as we're mapping two pixels to one character, we need an even number
+        # of pixels as height. So adding an empty row at the bottom for odd heights
+        if height % 2:
+            padded_array = np.zeros((height + 1, width, channels)).astype(np.uint8)
+            padded_array[:height, :, :] = image_array
+            height, width, channels = padded_array.shape
+            image_array = padded_array
+
         background_reset_code = "\033[0m"
-        for i in range(0, height - 1, 2):
+        for i in range(0, height, 2):
             for j in range(width):
                 upper_pixel = image_array[i, j]
                 lower_pixel = image_array[i + 1, j]

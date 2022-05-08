@@ -89,10 +89,10 @@ class PokespriteSprite:
         image_array = np.array(self.image)
 
         alpha_channel = image_array[:, :, 3]
-        x_values, y_values = alpha_channel.nonzero()
-        top, left = np.min(x_values), np.min(y_values)
-        bottom, right = np.max(x_values), np.max(y_values)
-        cropped_image = image_array[top:bottom, left:right]
+        non_zero_x_values, non_zero_y_values = alpha_channel.nonzero()
+        top, left = np.min(non_zero_x_values), np.min(non_zero_y_values)
+        bottom, right = np.max(non_zero_x_values), np.max(non_zero_y_values)
+        cropped_image = image_array[top : bottom + 1, left : right + 1]
 
         self.image = Image.fromarray(cropped_image)
 
