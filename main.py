@@ -1,4 +1,4 @@
-from generator import SpritesGenerator
+import generate
 from pokesprite import PokespriteDB
 from unicode_converters import LargeSizeConverter, SmallSizeConverter
 
@@ -9,13 +9,8 @@ def main() -> None:
     converter_small = SmallSizeConverter()
     converter_large = LargeSizeConverter()
 
-    generator = SpritesGenerator(db, converter_small)
-    for sprite in generator.generate():
-        generator.write_to_file(sprite, directory="small")
-
-    generator = SpritesGenerator(db, converter_large)
-    for sprite in generator.generate():
-        generator.write_to_file(sprite, directory="large")
+    generate.generate_sprites(db, converter_small, "small")
+    generate.generate_sprites(db, converter_large, "large")
 
 
 if __name__ == "__main__":
