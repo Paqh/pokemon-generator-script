@@ -59,7 +59,31 @@ class PokespriteDB(PokemonDB):
             sprites.append(normal)
             sprites.append(shiny)
 
-        return Pokemon(name, ascii_name, sprites)
+        pokemon = PokespritePokemon(name, ascii_name)
+        pokemon.sprites = sprites
+        return pokemon
+
+
+class PokespritePokemon(Pokemon):
+    def __init__(self, name: str, ascii_name: str) -> None:
+        self._name = name
+        self._ascii_name = ascii_name
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def ascii_name(self) -> str:
+        return self._ascii_name
+
+    @property
+    def sprites(self) -> List[Sprite]:
+        return self._sprites
+
+    @sprites.setter
+    def sprites(self, sprites: List[Sprite]) -> None:
+        self._sprites = sprites
 
 
 class PokespriteSprite:

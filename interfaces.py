@@ -21,11 +21,18 @@ class PokemonDB(ABC):
         """Returns the next pokemon in the database"""
 
 
-@dataclass
-class Pokemon:
-    name: str
-    ascii_name: str
-    sprites: List[Sprite]
+class Pokemon(ABC):
+    @property
+    def name(self) -> str:
+        """Get the name of the pokemon. Can include any unicode characters"""
+
+    @property
+    def ascii_name(self) -> str:
+        """The name of the pokemon limited to the ASCII character set"""
+
+    @property
+    def sprites(self) -> List[Sprite]:
+        """Get sprites for all forms of the pokemon"""
 
 
 @dataclass
