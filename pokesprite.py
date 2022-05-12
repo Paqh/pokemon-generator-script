@@ -41,26 +41,11 @@ class PokespriteDB(PokemonDB):
                 forms.append("regular")
             else:
                 forms.append(form_name)
-
-        sprites: List[Sprite] = []
-        for form_name in forms:
-            if not self.include_forms and form_name != "regular":
-                continue
-            sprite_name = ascii_name
-            if form_name != "regular":
-                sprite_name += f"-{form_name}"
-
-            normal = Sprite(
-                PokespriteSprite(sprite_name, shiny=False).get_image(), False, form_name
-            )
-            shiny = Sprite(
-                PokespriteSprite(sprite_name, shiny=True).get_image(), True, form_name
-            )
-            sprites.append(normal)
-            sprites.append(shiny)
-
         pokemon = PokespritePokemon(name, ascii_name)
-        pokemon.sprites = sprites
+        if self.include_forms:
+            pokemon.fetch_sprites(forms)
+        else:
+            pokemon.fetch_sprites()
         return pokemon
 
 
@@ -81,30 +66,43 @@ class PokespritePokemon(Pokemon):
     def sprites(self) -> List[Sprite]:
         return self._sprites
 
-    @sprites.setter
-    def sprites(self, sprites: List[Sprite]) -> None:
+    def fetch_sprites(self, forms=["regular"]):
+        sprites_endpoint = (
+            "https://raw.githubusercontent.com/msikma/pokesprite/master/pokemon-gen8"
+        )
+        sprites: List[Sprite] = []
+        for form in forms:
+            sprite_name = self.get_sprite_name(form)
+            sprite_types = ["regular", "shiny"]
+            for sprite_type in sprite_types:
+                url = f"{sprites_endpoint}/{sprite_type}/{sprite_name}.png"
+                sprite_image = PokespriteImage(url)
+                sprite_image.fetch()
+                sprite_image.crop_to_content()
+                # necessary as some sprites like unown are greyscale
+                sprite_image.convert_to_rgba()
+                sprite = Sprite(sprite_image.image, sprite_type == "shiny", form)
+                sprites.append(sprite)
         self._sprites = sprites
 
+    def get_sprite_name(self, form: str) -> str:
+        sprite_name = self.ascii_name
+        if form != "regular":
+            sprite_name += f"-{form}"
+        return sprite_name
 
-class PokespriteSprite:
-    def __init__(self, sprite_name: str, shiny: bool) -> None:
-        self.name = sprite_name
 
-        self.base_url = "https://raw.githubusercontent.com/msikma/pokesprite/master/"
-        self.sprites_endpoint = self.base_url + "pokemon-gen8"
-        if shiny:
-            self.endpoint = f"{self.sprites_endpoint}/shiny/{sprite_name}.png"
-        else:
-            self.endpoint = f"{self.sprites_endpoint}/regular/{sprite_name}.png"
+class PokespriteImage:
+    def __init__(self, url: str):
+        self.url = url
 
-    def fetch_sprite(self) -> None:
-        response = requests.get(self.endpoint)
+    def fetch(self) -> None:
+        response = requests.get(self.url)
         try:
             response.raise_for_status()
         except requests.exceptions.HTTPError as error:
-            print(f"couldn't fetch sprite for {self.name}", error)
+            print(f"couldn't fetch sprite from {self.url}", error)
             exit()
-
         self.image = Image.open(BytesIO(response.content))
 
     def crop_to_content(self) -> None:
@@ -123,9 +121,3 @@ class PokespriteSprite:
     def convert_to_rgba(self) -> None:
         if self.image.mode != "RGBA":
             self.image = self.image.convert("RGBA")
-
-    def get_image(self) -> Image.Image:
-        self.fetch_sprite()
-        self.convert_to_rgba()
-        self.crop_to_content()
-        return self.image
