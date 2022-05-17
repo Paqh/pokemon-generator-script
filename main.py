@@ -44,10 +44,15 @@ async def main() -> None:
             image = PokemonImage(sprite.image)
             image.convert_to_rgba()
             image.crop_to_content()
-            unicode_sprite = converter.convert_image_to_unicode(image.image)
-            output_dir = "shiny" if sprite.is_shiny else "regular"
-            write_to_file(sprite.name, output_dir, unicode_sprite)
-            print(unicode_sprite)
+            small_converter = converter.SmallConverter()
+            large_converter = converter.LargeConverter()
+            small_unicode_sprite = small_converter.convert_image_to_unicode(image.image)
+            large_unicode_sprite = large_converter.convert_image_to_unicode(image.image)
+            color_dir = "shiny" if sprite.is_shiny else "regular"
+            write_to_file(sprite.name, f"large/{color_dir}", large_unicode_sprite)
+            write_to_file(sprite.name, f"small/{color_dir}", small_unicode_sprite)
+            print(large_unicode_sprite)
+            print(small_unicode_sprite)
 
 
 def write_to_file(filename: str, directory: str, text: str):
