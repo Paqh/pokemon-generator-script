@@ -1,12 +1,11 @@
 import asyncio
-from io import BytesIO
 from typing import List
 
 import aiohttp
-from PIL import Image
 
 import unicode_converter as converter
 from image import PokemonImage
+from sprite import Sprite
 
 
 async def main() -> None:
@@ -19,7 +18,8 @@ async def main() -> None:
             pokemon_json = await response.json(content_type="text/plain")
 
     async with aiohttp.ClientSession() as session:
-        tasks: List[asyncio.Task] = []
+        sprite_fetch_tasks: List[asyncio.task] = []
+        sprites: List[Sprite] = []
         for entry in pokemon_json.items():
             pokemon_details = entry[1]
             name = pokemon_details["slug"]["eng"]
@@ -30,29 +30,19 @@ async def main() -> None:
                     continue
                 forms.append("regular" if form_name == "$" else form_name)
             for form in forms:
-                sprite_name = name
-                if form != "regular":
-                    sprite_name += f"-{form}"
-                    for color in colors:
-                        sprite_endpoint = f"pokemon-gen8/{color}/{sprite_name}.png"
-                        tasks.append(
-                            asyncio.create_task(get_sprite(session, base_url + sprite_endpoint))
-                        )
+                for color in colors:
+                    sprite = Sprite(name, color == "shiny", form)
+                    sprites.append(sprite)
+                    sprite_fetch_tasks.append(asyncio.create_task(sprite.fetch_image(session)))
 
-        sprites = await asyncio.gather(*tasks)
+        print("Fetching sprites. Might take a few seconds...")
+        await asyncio.gather(*sprite_fetch_tasks)
         for sprite in sprites:
-            sprite = PokemonImage(sprite)
-            sprite.convert_to_rgba()
-            sprite.crop_to_content()
-            unicode_sprite = converter.convert_image_to_unicode(sprite.image)
+            image = PokemonImage(sprite.image)
+            image.convert_to_rgba()
+            image.crop_to_content()
+            unicode_sprite = converter.convert_image_to_unicode(image.image)
             print(unicode_sprite)
-
-
-async def get_sprite(session: aiohttp.ClientSession, url: str) -> Image.Image:
-    async with session.get(url) as response:
-        image_data = await response.read()
-        image = Image.open(BytesIO(image_data))
-        return image
 
 
 if __name__ == "__main__":
