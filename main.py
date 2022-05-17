@@ -1,4 +1,5 @@
 import asyncio
+import os
 from typing import List
 
 import aiohttp
@@ -33,7 +34,9 @@ async def main() -> None:
                 for color in colors:
                     sprite = Sprite(name, color == "shiny", form)
                     sprites.append(sprite)
-                    sprite_fetch_tasks.append(asyncio.create_task(sprite.fetch_image(session)))
+                    sprite_fetch_tasks.append(
+                        asyncio.create_task(sprite.fetch_image(session))
+                    )
 
         print("Fetching sprites. Might take a few seconds...")
         await asyncio.gather(*sprite_fetch_tasks)
@@ -42,7 +45,15 @@ async def main() -> None:
             image.convert_to_rgba()
             image.crop_to_content()
             unicode_sprite = converter.convert_image_to_unicode(image.image)
+            output_dir = "shiny" if sprite.is_shiny else "regular"
+            write_to_file(sprite.name, output_dir, unicode_sprite)
             print(unicode_sprite)
+
+
+def write_to_file(filename: str, directory: str, text: str):
+    os.makedirs(directory, exist_ok=True)
+    with open(f"{directory}/{filename}", "w+") as fout:
+        fout.write(text)
 
 
 if __name__ == "__main__":
