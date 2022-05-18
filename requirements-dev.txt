@@ -1,0 +1,6 @@
+isort
+mypy
+black
+types-pillow
+python-lsp-server
+pyflakes

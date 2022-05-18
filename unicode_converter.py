@@ -1,10 +1,10 @@
 import numpy as np
 from PIL.Image import Image
 
-from interfaces import ImageToUnicodeConverter
+import ansi
 
 
-class SmallSizeConverter(ImageToUnicodeConverter):
+class SmallConverter:
     """Generattes sprites where one unicode character represents two image
     pixels vertically and one horizontally"""
 
@@ -38,19 +38,19 @@ class SmallSizeConverter(ImageToUnicodeConverter):
                     unicode_sprite += empty_block
                 elif upper_pixel[3] == 0:
                     r, g, b = lower_pixel[:3]
-                    escape_code = self.get_color_escape_code(r, g, b)
+                    escape_code = ansi.get_color_escape_code(r, g, b)
                     unicode_sprite += escape_code
                     unicode_sprite += lower_block
                 elif lower_pixel[3] == 0:
                     r, g, b = upper_pixel[:3]
-                    escape_code = self.get_color_escape_code(r, g, b)
+                    escape_code = ansi.get_color_escape_code(r, g, b)
                     unicode_sprite += escape_code
                     unicode_sprite += upper_block
                 else:
                     r_f, g_f, b_f = upper_pixel[:3]
                     r_b, g_b, b_b = lower_pixel[:3]
-                    foreground_escape = self.get_color_escape_code(r_f, g_f, b_f)
-                    background_escape = self.get_color_escape_code(
+                    foreground_escape = ansi.get_color_escape_code(r_f, g_f, b_f)
+                    background_escape = ansi.get_color_escape_code(
                         r_b, g_b, b_b, background=True
                     )
                     unicode_sprite += foreground_escape
@@ -61,16 +61,8 @@ class SmallSizeConverter(ImageToUnicodeConverter):
 
         return unicode_sprite
 
-    @staticmethod
-    def get_color_escape_code(r, g, b, background=False) -> str:
-        """
-        Given rgb values give the escape sequence for printing out the
-        color to the terminal
-        """
-        return "\033[{};2;{};{};{}m".format(48 if background else 38, r, g, b)
 
-
-class LargeSizeConverter(ImageToUnicodeConverter):
+class LargeConverter:
     """Generates sprites where one image pixel is mapped to two unicode
     characters in width and one in height"""
 
@@ -93,7 +85,7 @@ class LargeSizeConverter(ImageToUnicodeConverter):
                     unicode_sprite += empty_block
                     continue
                 r, g, b = image_array[i, j, :3]
-                escape_code = self.get_color_escape_code(r, g, b, background=False)
+                escape_code = ansi.get_color_escape_code(r, g, b, background=False)
                 # only add an escape code if the color changes
                 if prev_escape_code != escape_code:
                     unicode_sprite += escape_code
@@ -102,11 +94,3 @@ class LargeSizeConverter(ImageToUnicodeConverter):
             unicode_sprite += "\n"
 
         return unicode_sprite
-
-    @staticmethod
-    def get_color_escape_code(r, g, b, background=False) -> str:
-        """
-        Given rgb values give the escape sequence for printing out the
-        color to the terminal
-        """
-        return "\033[{};2;{};{};{}m".format(48 if background else 38, r, g, b)
