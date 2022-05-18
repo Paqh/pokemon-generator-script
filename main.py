@@ -1,3 +1,4 @@
+import argparse
 import asyncio
 import os
 from typing import List
@@ -10,6 +11,7 @@ from sprite import Sprite
 
 
 async def main() -> None:
+    args = parse_cli_arguments()
     base_url = "https://raw.githubusercontent.com/msikma/pokesprite/master/"
     data_endpoint = "data/pokemon.json"
     colors = ["regular", "shiny"]
@@ -24,12 +26,15 @@ async def main() -> None:
         for entry in pokemon_json.items():
             pokemon_details = entry[1]
             name = pokemon_details["slug"]["eng"]
-            form_data = pokemon_details["gen-8"]["forms"]
             forms: List[str] = []
-            for form_name, form_info in form_data.items():
-                if "is_alias_of" in form_info:
-                    continue
-                forms.append("regular" if form_name == "$" else form_name)
+            if args.include_forms:
+                form_data = pokemon_details["gen-8"]["forms"]
+                for form_name, form_info in form_data.items():
+                    if "is_alias_of" in form_info:
+                        continue
+                    forms.append("regular" if form_name == "$" else form_name)
+            else:
+                forms.append("regular")
             for form in forms:
                 for color in colors:
                     sprite = Sprite(name, color == "shiny", form)
@@ -55,7 +60,18 @@ async def main() -> None:
             print(small_unicode_sprite)
 
 
-def write_to_file(filename: str, directory: str, text: str):
+def parse_cli_arguments() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-i",
+        "--include-forms",
+        help="Generate the different forms of the pokemon. Regional, megas, gmax etc.",
+        action="store_true",
+    )
+    return parser.parse_args()
+
+
+def write_to_file(filename: str, directory: str, text: str) -> None:
     os.makedirs(directory, exist_ok=True)
     with open(f"{directory}/{filename}", "w+") as fout:
         fout.write(text)
