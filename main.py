@@ -2,50 +2,17 @@
 import argparse
 import asyncio
 import os
-from typing import List
-
-import aiohttp
 
 import unicode_converter as converter
 from image import PokemonImage
-from sprite import Sprite
+from pokesprite_db import PokespriteDB
 
 
 async def main() -> None:
     args = parse_cli_arguments()
-    base_url = "https://raw.githubusercontent.com/msikma/pokesprite/master/"
-    data_endpoint = "data/pokemon.json"
-    colors = ["regular", "shiny"]
-
-    async with aiohttp.ClientSession() as session:
-        async with session.get(base_url + data_endpoint) as response:
-            pokemon_json = await response.json(content_type="text/plain")
-
-    async with aiohttp.ClientSession() as session:
-        sprite_fetch_tasks: List[asyncio.task] = []
-        sprites: List[Sprite] = []
-        for entry in pokemon_json.items():
-            pokemon_details = entry[1]
-            name = pokemon_details["slug"]["eng"]
-            forms: List[str] = []
-            if args.include_forms:
-                form_data = pokemon_details["gen-8"]["forms"]
-                for form_name, form_info in form_data.items():
-                    if "is_alias_of" in form_info:
-                        continue
-                    forms.append("regular" if form_name == "$" else form_name)
-            else:
-                forms.append("regular")
-            for form in forms:
-                for color in colors:
-                    sprite = Sprite(name, color == "shiny", form)
-                    sprites.append(sprite)
-                    sprite_fetch_tasks.append(
-                        asyncio.create_task(sprite.fetch_image(session))
-                    )
-
-        print("Fetching sprites. Might take a few seconds...")
-        await asyncio.gather(*sprite_fetch_tasks)
+    async with PokespriteDB() as db:
+        await db.fetch_data()
+        sprites = await db.fetch_sprites(args.include_forms)
         for sprite in sprites:
             image = PokemonImage(sprite.image)
             image.convert_to_rgba()
@@ -61,7 +28,6 @@ async def main() -> None:
                 print(sprite.name)
                 print(large_unicode_sprite)
                 print(small_unicode_sprite)
-        print("Done generating sprites!")
 
 
 def parse_cli_arguments() -> argparse.Namespace:
