@@ -56,8 +56,9 @@ async def main() -> None:
             color_dir = "shiny" if sprite.is_shiny else "regular"
             write_to_file(sprite.name, f"large/{color_dir}", large_unicode_sprite)
             write_to_file(sprite.name, f"small/{color_dir}", small_unicode_sprite)
-            print(large_unicode_sprite)
-            print(small_unicode_sprite)
+            if not args.silent:
+                print(large_unicode_sprite)
+                print(small_unicode_sprite)
 
 
 def parse_cli_arguments() -> argparse.Namespace:
@@ -65,7 +66,13 @@ def parse_cli_arguments() -> argparse.Namespace:
     parser.add_argument(
         "-i",
         "--include-forms",
-        help="Generate the different forms of the pokemon. Regional, megas, gmax etc.",
+        help="generate the different forms of the pokemon. Regional, megas, gmax etc.",
+        action="store_true",
+    )
+    parser.add_argument(
+        "-s",
+        "--silent",
+        help="don't print out sprites as they are being generated",
         action="store_true",
     )
     return parser.parse_args()
