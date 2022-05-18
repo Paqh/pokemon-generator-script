@@ -58,8 +58,10 @@ async def main() -> None:
             write_to_file(sprite.name, f"large/{color_dir}", large_unicode_sprite)
             write_to_file(sprite.name, f"small/{color_dir}", small_unicode_sprite)
             if not args.silent:
+                print(sprite.name)
                 print(large_unicode_sprite)
                 print(small_unicode_sprite)
+        print("Done generating sprites!")
 
 
 def parse_cli_arguments() -> argparse.Namespace:

@@ -27,7 +27,7 @@ class SmallConverter:
             height, width, channels = padded_array.shape
             image_array = padded_array
 
-        background_reset_code = "\033[0m"
+        reset_code = ansi.get_reset_escape_code()
         for i in range(0, height, 2):
             for j in range(width):
                 upper_pixel = image_array[i, j]
@@ -56,8 +56,9 @@ class SmallConverter:
                     unicode_sprite += foreground_escape
                     unicode_sprite += background_escape
                     unicode_sprite += upper_block
-                    unicode_sprite += background_reset_code
+                    unicode_sprite += reset_code
             unicode_sprite += "\n"
+        unicode_sprite += reset_code
 
         return unicode_sprite
 
@@ -77,6 +78,7 @@ class LargeConverter:
         image_array = np.array(image)
 
         height, width, _ = image_array.shape
+        reset_code = ansi.get_reset_escape_code()
         prev_escape_code = ""
         for i in range(height):
             for j in range(width):
@@ -92,5 +94,6 @@ class LargeConverter:
                 unicode_sprite += solid_block
                 prev_escape_code = escape_code
             unicode_sprite += "\n"
+        unicode_sprite += reset_code
 
         return unicode_sprite
