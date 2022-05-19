@@ -51,7 +51,7 @@ class PokespriteDB:
                     if form != "regular":
                         sprite_name += f"-{form}"
                     sprite_url = f"{self.base_url}/{self.sprite_endpoint}/{color}/{sprite_name}.png"
-                    sprite = Sprite(name, color == "shiny", sprite_url)
+                    sprite = Sprite(sprite_name, color == "shiny", sprite_url)
                     self.sprites.append(sprite)
                     task = asyncio.create_task(sprite.fetch_image(self.http_session))
                     sprite_fetch_tasks.append(task)
