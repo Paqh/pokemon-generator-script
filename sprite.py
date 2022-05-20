@@ -11,7 +11,7 @@ class Sprite:
         self.url = image_url
 
     def __repr__(self) -> str:
-        return f"Sprite(pokemon = {self._pokemon}, is_shiny = {self.is_shiny}, form = {self._form})"
+        return f"Sprite(pokemon = {self._name}, is_shiny = {self.is_shiny})"
 
     @property
     def name(self) -> str:
