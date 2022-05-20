@@ -5,6 +5,7 @@ from typing import List
 
 import aiohttp
 
+from pokemon import Pokemon
 from sprite import Sprite
 
 
@@ -22,6 +23,25 @@ class PokespriteDB:
 
     async def __aexit__(self, *err) -> None:
         await self.http_session.close()
+
+    def __iter__(self) -> PokespriteDB:
+        self.pokemon_entries = iter(self.pokemon_json.items())
+        return self
+
+    def __next__(self) -> Pokemon:
+        pokemon_info = next(self.pokemon_entries)[1]
+        name = pokemon_info["slug"]["eng"]
+        form_data = pokemon_info["gen-8"]["forms"]
+        forms: List[str] = []
+        for form_name, form_details in form_data.items():
+            # some forms are an alias of another form and donot have sprites of
+            # their own. So should be excluded
+            if "is_alias_of" in form_details:
+                continue
+            # The default form is represented by '$' in the db. Change that to
+            # a more human readable form
+            forms.append("regular" if form_name == "$" else form_name)
+        return Pokemon(name, forms)
 
     async def fetch_data(self) -> None:
         async with self.http_session.get(

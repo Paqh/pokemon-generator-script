@@ -1,17 +1,25 @@
 #!/usr/bin/env python3
 import argparse
 import asyncio
+import json
 import os
+from typing import List
 
 import unicode_converter as converter
 from image import PokemonImage
+from pokemon import Pokemon
 from pokesprite_db import PokespriteDB
 
 
 async def main() -> None:
     args = parse_cli_arguments()
     async with PokespriteDB() as db:
+        pokemons: List[Pokemon] = []
         await db.fetch_data()
+        for pokemon in db:
+            pokemons.append(pokemon)
+        generate_pokemon_json(pokemons)
+
         sprites = await db.fetch_sprites(args.include_forms)
         for sprite in sprites:
             image = PokemonImage(sprite.image)
@@ -28,6 +36,16 @@ async def main() -> None:
                 print(sprite.name)
                 print(large_unicode_sprite)
                 print(small_unicode_sprite)
+
+
+def generate_pokemon_json(pokemons: List[Pokemon]) -> None:
+    print("Generating pokemon JSON...")
+    pokemon_json = []
+    for pokemon in pokemons:
+        pokemon_entry = {"name": pokemon.name, "forms": pokemon.forms}
+        pokemon_json.append(pokemon_entry)
+    with open("pokemon.json", "w+") as fout:
+        json.dump(pokemon_json, fout, indent=2)
 
 
 def parse_cli_arguments() -> argparse.Namespace:
