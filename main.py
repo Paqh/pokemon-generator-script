@@ -12,23 +12,23 @@ from pokesprite_db import PokespriteDB
 
 
 async def main() -> None:
-    args = parse_cli_arguments()
+    args = parse_cli_arguments() #1
     async with PokespriteDB() as db:
-        pokemons: List[Pokemon] = []
-        await db.fetch_data()
+        pokemons: List[Pokemon] = [] 
+        await db.fetch_data() #2
         for pokemon in db:
             pokemons.append(pokemon)
-        generate_pokemon_json(pokemons)
+        generate_pokemon_json(pokemons) #3
 
-        sprites = await db.fetch_sprites(args.include_forms)
+        sprites = await db.fetch_sprites(args.include_forms) #4
         for sprite in sprites:
-            image = PokemonImage(sprite.image)
-            image.convert_to_rgba()
-            image.crop_to_content()
-            small_converter = converter.SmallConverter()
-            large_converter = converter.LargeConverter()
-            small_unicode_sprite = small_converter.convert_image_to_unicode(image.image)
-            large_unicode_sprite = large_converter.convert_image_to_unicode(image.image)
+            image = PokemonImage(sprite.image) #5
+            image.convert_to_rgba() #6
+            image.crop_to_content() #7
+            small_converter = converter.SmallConverter() #8
+            large_converter = converter.LargeConverter() #9
+            small_unicode_sprite = small_converter.convert_image_to_unicode(image.image) #10
+            large_unicode_sprite = large_converter.convert_image_to_unicode(image.image) #11
             color_dir = "shiny" if sprite.is_shiny else "regular"
             write_to_file(sprite.name, f"large/{color_dir}", large_unicode_sprite)
             write_to_file(sprite.name, f"small/{color_dir}", small_unicode_sprite)
