@@ -1,5 +1,6 @@
 # ignore virtual env
 .venv
+venv
 
 # ignore mypy files
 .mypy_cache

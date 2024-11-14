@@ -67,7 +67,7 @@ def parse_cli_arguments() -> argparse.Namespace:
 
 def write_to_file(filename: str, directory: str, text: str) -> None:
     os.makedirs(directory, exist_ok=True)
-    with open(f"{directory}/{filename}", "w+") as fout:
+    with open(f"{directory}/{filename}", "w+", encoding="utf-8") as fout:
         fout.write(text)
 
 
