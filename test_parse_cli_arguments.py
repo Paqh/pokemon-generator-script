@@ -1,7 +1,6 @@
 import unittest
 from unittest.mock import patch
-# import argparse
-from main import parse_cli_arguments  # Replace with the actual module name
+from main import parse_cli_arguments
 
 class TestParseCliArguments(unittest.TestCase):
 
