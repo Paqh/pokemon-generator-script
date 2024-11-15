@@ -1,5 +1,5 @@
 import unittest
-from ansi import get_color_escape_code  # Replace with the actual module name
+from ansi import get_color_escape_code
 
 class TestGetColorEscapeCode(unittest.TestCase):
 
